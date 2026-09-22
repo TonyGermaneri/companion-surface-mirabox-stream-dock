@@ -4,31 +4,29 @@ import type { StreamDockModelDefinition } from './list.js'
  * Stream Dock N1 (sold as Mirabox N1, VSDinside N1, TreasLin N1, ActionRing N1).
  *
  * Portrait "numeric keypad" form factor:
- *   - 15 LCD keys in a 3 wide x 5 tall grid (rows 1-5 here)
+ *   - 15 LCD keys in a 3 wide x 5 tall grid (rows 1-5 here), 64x64 each
  *   - 2 non-LCD buttons and 1 rotary encoder with push, along the top (row 0)
- *   - an LCD strip across the top, modelled as 3 output segments on row 0
  *
- * The 3x6 control grid matches the layout the vendor software itself uses: its
- * bundled N1 profiles (DeviceUUID "VSDN1") address keys as column 0-2 by row 0-5.
+ * Like the rest of the 0x5548 devices, this one boots emulating a keyboard and
+ * reports nothing on interface 0 until it is switched into software mode with
+ * MOD (see StreamDock.setSoftwareMode). Without that, Companion sees a device
+ * that accepts commands but never reports a press.
  *
- * Reported in bitfocus/companion-surface-mirabox-stream-dock#61, and also
- * requested in #25 and #30.
+ * Requested in bitfocus/companion-surface-mirabox-stream-dock#25, #30 and #61.
  *
- * TODO(hardware): the following still need to be confirmed against a physical
- * unit - every one of them is a per-model value in this family, so they cannot
- * be derived from the sibling models. Run `tools/probe-device.cjs` with the deck
- * attached to capture the input ids, then adjust:
- *   - input ids for the 15 LCD keys, the 2 buttons and the encoder
- *   - output ids for the LCD keys (the M18V3 and N4 map these bottom-up rather
- *     than in reading order, while the N3 maps them in reading order)
- *   - output ids and resolution of the LCD strip segments
- *   - LCD key resolution (siblings use 60x60, 64x64 and 112x112)
- *   - iconRotation
+ * Measured against hardware (serial 0841DA78170E): the input ids below, the
+ * output ids mapping in reading order, 64x64 key images and an upright icon
+ * rotation are all confirmed. Note the non-LCD buttons do NOT use the
+ * 0x25/0x30/0x31 ids that the N3 and M18V3 use.
+ *
+ * #61 describes an LCD strip on this model. Writing to ids 0x10-0x15 produced
+ * nothing on the unit tested and left the panel blank until it was reset, so no
+ * strip outputs are defined here.
  */
 export const N1Definition: StreamDockModelDefinition = {
 	productName: 'Stream Dock N1',
-	// TODO(hardware): verify - siblings in this family use 0, 90, 180, 270 and -90
 	iconRotation: 0,
+	requiresSoftwareMode: true,
 	usbIds: [
 		{
 			// Enumerates as "HOTSPOTEKUSB HID DEMO" with a 12 character hex serial
@@ -38,198 +36,154 @@ export const N1Definition: StreamDockModelDefinition = {
 	],
 
 	inputs: [
-		// Top row: 2 non-LCD buttons and the rotary encoder.
-		// 0x25/0x30 are the ids this family uses for its non-LCD buttons (see N3, M18V3),
-		// and 0x35 + 0x50/0x51 is the first-encoder triple used by the N3 and N4.
+		// Top row: the two non-LCD buttons and the rotary encoder.
+		// Ids measured on hardware (serial 0841DA78170E); this model does not use
+		// the 0x25/0x30/0x31 ids the N3 and M18V3 use for their non-LCD buttons.
 		{
 			type: 'button',
-			id: 0x25,
+			id: 0x1e,
 			row: 0,
 			column: 0,
-			name: 'Button 1',
+			name: 'Button 16',
 		},
 		{
 			type: 'button',
-			id: 0x30,
+			id: 0x1f,
 			row: 0,
 			column: 1,
-			name: 'Button 2',
+			name: 'Button 17',
 		},
 		{
-			type: 'push',
-			id: 0x35,
+			type: 'button',
+			id: 0x23,
 			row: 0,
 			column: 2,
 			name: 'Rotary encoder 1',
 		},
+		// The encoder reports a single event per detent, with no press/release pair
 		{
 			type: 'rotateLeft',
-			id: 0x50,
+			id: 0x32,
 			row: 0,
 			column: 2,
 			name: 'Rotary encoder 1',
 		},
 		{
 			type: 'rotateRight',
-			id: 0x51,
+			id: 0x33,
 			row: 0,
 			column: 2,
 			name: 'Rotary encoder 1',
 		},
 
-		// LCD strip swipes, as on the N4
-		{
-			type: 'swipeLeft',
-			id: 0x38,
-			row: 0,
-			column: 0,
-			name: 'LCD Strip',
-		},
-		{
-			type: 'swipeRight',
-			id: 0x39,
-			row: 0,
-			column: 0,
-			name: 'LCD Strip',
-		},
-
-		// The 3x5 LCD key grid
+		// The 3x5 LCD key grid, ids 0x01-0x0f in reading order
 		{
 			type: 'button',
 			id: 0x01,
 			row: 1,
 			column: 0,
-			name: 'Button 3',
+			name: 'Button 1',
 		},
 		{
 			type: 'button',
 			id: 0x02,
 			row: 1,
 			column: 1,
-			name: 'Button 4',
+			name: 'Button 2',
 		},
 		{
 			type: 'button',
 			id: 0x03,
 			row: 1,
 			column: 2,
-			name: 'Button 5',
+			name: 'Button 3',
 		},
 		{
 			type: 'button',
 			id: 0x04,
 			row: 2,
 			column: 0,
-			name: 'Button 6',
+			name: 'Button 4',
 		},
 		{
 			type: 'button',
 			id: 0x05,
 			row: 2,
 			column: 1,
-			name: 'Button 7',
+			name: 'Button 5',
 		},
 		{
 			type: 'button',
 			id: 0x06,
 			row: 2,
 			column: 2,
-			name: 'Button 8',
+			name: 'Button 6',
 		},
 		{
 			type: 'button',
 			id: 0x07,
 			row: 3,
 			column: 0,
-			name: 'Button 9',
+			name: 'Button 7',
 		},
 		{
 			type: 'button',
 			id: 0x08,
 			row: 3,
 			column: 1,
-			name: 'Button 10',
+			name: 'Button 8',
 		},
 		{
 			type: 'button',
 			id: 0x09,
 			row: 3,
 			column: 2,
-			name: 'Button 11',
+			name: 'Button 9',
 		},
 		{
 			type: 'button',
 			id: 0x0a,
 			row: 4,
 			column: 0,
-			name: 'Button 12',
+			name: 'Button 10',
 		},
 		{
 			type: 'button',
 			id: 0x0b,
 			row: 4,
 			column: 1,
-			name: 'Button 13',
+			name: 'Button 11',
 		},
 		{
 			type: 'button',
 			id: 0x0c,
 			row: 4,
 			column: 2,
-			name: 'Button 14',
+			name: 'Button 12',
 		},
 		{
 			type: 'button',
 			id: 0x0d,
 			row: 5,
 			column: 0,
-			name: 'Button 15',
+			name: 'Button 13',
 		},
 		{
 			type: 'button',
 			id: 0x0e,
 			row: 5,
 			column: 1,
-			name: 'Button 16',
+			name: 'Button 14',
 		},
 		{
 			type: 'button',
 			id: 0x0f,
 			row: 5,
 			column: 2,
-			name: 'Button 17',
+			name: 'Button 15',
 		},
 	],
 	outputs: [
-		// LCD strip segments across the top
-		{
-			type: 'lcd',
-			id: 0x10,
-			row: 0,
-			column: 0,
-			name: 'Strip 1',
-			resolutionx: 176,
-			resolutiony: 124,
-		},
-		{
-			type: 'lcd',
-			id: 0x11,
-			row: 0,
-			column: 1,
-			name: 'Strip 2',
-			resolutionx: 176,
-			resolutiony: 124,
-		},
-		{
-			type: 'lcd',
-			id: 0x12,
-			row: 0,
-			column: 2,
-			name: 'Strip 3',
-			resolutionx: 176,
-			resolutiony: 124,
-		},
-
 		// The 3x5 LCD key grid
 		{
 			type: 'lcd',

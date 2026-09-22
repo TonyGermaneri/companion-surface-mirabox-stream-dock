@@ -57,15 +57,17 @@ Currently the LCD keys and the regular buttons are supported.
 
 ### Mirabox Stream Dock N1
 
-_3x5 LCD keys, 2 buttons, 1 rotary encoder, LCD strip_
+_3x5 LCD keys, 2 buttons, 1 rotary encoder_
 
 Also sold as the VSDinside N1, TreasLin N1 and ActionRing N1.
 
-The N1 is a portrait, numeric-keypad shaped device. The 15 LCD keys map to a 3 wide by 5 tall block of the Companion grid. The two non-LCD buttons and the rotary encoder sit on the row above them, and the LCD strip across the top is mapped to that same row as three segments.
+The N1 is a portrait, numeric-keypad shaped device. The two non-LCD buttons and the rotary encoder are along the top, and the 15 LCD keys map to the 3 wide by 5 tall block below them, so in total it is a 3x6 surface.
 
-To use the rotary encoder for a specific button, enable the `Enable Rotary Actions` checkbox for that button.
+The encoder reports a single event per detent rather than a press and a release. To use it for a specific button, enable the `Enable Rotary Actions` checkbox for that button.
 
-This model has not yet been confirmed against hardware: the control ids, key resolution and icon rotation are based on the conventions the rest of this family follows. If yours behaves oddly, run `yarn probe` with the device attached and report what it prints.
+This model boots emulating a USB keyboard, and until it is switched into software mode it will accept commands but never report a key press. Companion does that switch automatically when it opens the device. One consequence is that the keys stop sending their own keystrokes while Companion is connected, and the device falls back to its stored icons once Companion releases it.
+
+Some sources describe an LCD strip on this model. The unit this was developed against has no addressable strip, so none is defined.
 
 ### Mirabox Stream Dock HSV293S, Ajazz AKP153, Ajazz AKP153E
 

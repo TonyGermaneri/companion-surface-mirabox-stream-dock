@@ -166,6 +166,23 @@ export class StreamDock extends EventEmitter<StreamDockEvents> {
 		}
 	}
 
+	/**
+	 * Switches the device out of keyboard emulation and into software mode.
+	 *
+	 * Devices that need this accept commands regardless, but do not report any input on
+	 * the protocol interface until they have been switched over.
+	 */
+	async setSoftwareMode(): Promise<void> {
+		// 'MOD', then the mode number as an ascii digit. 3 is software mode.
+		await this.sendCmdSimple([0x4d, 0x4f, 0x44, 0x00, 0x00, 0x30 + 3]).catch((e) => {
+			console.error('Sending software mode to Stream Dock failed ' + e)
+		})
+	}
+
+	get requiresSoftwareMode(): boolean {
+		return this.model.requiresSoftwareMode ?? false
+	}
+
 	async wakeScreen(): Promise<void> {
 		await this.sendCmdSimple([0x44, 0x49, 0x53]).catch((e) => {
 			console.error('Sending wake screen to Stream Dock failed ' + e)

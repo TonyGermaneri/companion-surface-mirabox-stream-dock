@@ -66,6 +66,9 @@ export class MiraboxWrapper implements SurfaceInstance {
 	}
 
 	async init(): Promise<void> {
+		// Must happen before anything else, or the device never reports any input
+		if (this.#streamDock.requiresSoftwareMode) await this.#streamDock.setSoftwareMode()
+
 		await this.#streamDock.wakeScreen()
 		await this.#streamDock.clearPanel()
 		await this.#streamDock.setLedBrightness(0)

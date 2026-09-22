@@ -19,6 +19,13 @@ export interface StreamDockModelDefinition {
 	iconRotation: number
 	/** If set, the packet size will be overridden */
 	packetSize?: number
+	/**
+	 * If set, the device is sent a MOD command to put it into software mode when opened.
+	 *
+	 * Some devices in this family boot emulating a USB keyboard and will accept commands
+	 * but never report a press on the protocol interface until they are switched over.
+	 */
+	requiresSoftwareMode?: boolean
 
 	inputs: StreamDockInputDefinition[]
 	outputs: StreamDockOutputDefinition[]
